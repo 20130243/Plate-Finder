@@ -54,7 +54,7 @@ public class BorderImage {
 			}
 
 		});
-
+		List<MatOfPoint2f> screenCnt = null;
 		for (int i = 0; i < 10; i++) {
 			// Chu vi
 			double peri = Imgproc.arcLength(new MatOfPoint2f(contours.get(i).toArray()), false);
@@ -65,10 +65,14 @@ public class BorderImage {
 			double ratio = boundingRect.width / boundingRect.height;
 			if (approx.size().height == 4) {
 				System.out.println(i);
-				System.out.println("true");
+				screenCnt.add(approx);
 				Scalar color = new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256));
 				Imgproc.drawContours(drawing, contours, i, color, 2, Imgproc.LINE_8, hierarchy, 0, new Point());
 			}
+		}
+
+		for (MatOfPoint2f cnt : screenCnt) {
+//			MatOfPoint2f s1 = cnt.get();
 		}
 
 		Imgcodecs.imwrite("C:\\Users\\USER\\Downloads\\drawing.jpg", drawing);
