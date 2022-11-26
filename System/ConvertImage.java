@@ -1,78 +1,53 @@
 package System;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 public class ConvertImage {
-	public static File GreyImage(File file) throws IOException {
-		BufferedImage img = null;
-		try {
-			img = ImageIO.read(file);
-			// lấy chiều cao và chiều rộng của ảnh
-			int width = img.getWidth();
-			int height = img.getHeight();
-
-			// chuyển đổi sang màu xám
-			for (int y = 0; y < height; y++) {
-				for (int x = 0; x < width; x++) {
-					// x,y là toạ độ của ảnh để sửa các giá trị pixel
-					int p = img.getRGB(x, y);
-
-					int a = (p >> 24) & 0xff;
-					int r = (p >> 16) & 0xff;
-					int g = (p >> 8) & 0xff;
-					int b = p & 0xff;
-
-					// tính giá trị trung bình
-					int avg = (r + g + b) / 3;
-
-					// thay RGB bằng giá trị avg vừa tính được
-					p = (a << 24) | (avg << 16) | (avg << 8) | avg;
-
-					img.setRGB(x, y, p);
-				}
-			}
-
-		} catch (Exception ex) {
-			// TODO: handle exception
-		}
-		return file;
-	}
-
-	public static File Overexposure(File file) {
+	public static BufferedImage Pretreatment(File file) throws IOException {
 		String path = file.getPath();
-		try {
-			System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-			Mat source = Imgcodecs.imread(path, Imgcodecs.IMREAD_GRAYSCALE);
-			Mat destination = new Mat(source.rows(), source.cols(), source.type());
-			Imgproc.equalizeHist(source, destination);
-			Imgcodecs.imwrite(path, destination);
-		} catch (Exception e) {
-		}
-		return file;
+		// Load thu vien
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		// Doc hinh tu File chon
+		Mat source = Imgcodecs.imread(path, Imgcodecs.IMREAD_GRAYSCALE); // chuyen anh ve dang anh xam
+
+		// tang do phan giai anh
+		Mat dst_Contrast = new Mat(source.rows(), source.cols(), source.type());
+		Mat dst_smoothing = new Mat();
+		source.convertTo(dst_Contrast, -1, 2, 0);
+		// giam nhieu
+		Size ksize = new Size(5, 5);
+		Imgproc.GaussianBlur(source, dst_smoothing, ksize, 0);
+		// nhi phan hoa hinh anh
+		Mat dst_AdaptiveThresh = new Mat();
+		Imgproc.adaptiveThreshold(dst_Contrast, dst_AdaptiveThresh, 150, Imgproc.ADAPTIVE_THRESH_MEAN_C,
+				Imgproc.THRESH_BINARY_INV, 19, 9);
+		Imgcodecs.imwrite("D:\\ki5\\AI\\AI\\Giuaki\\Image\\test.jpg", dst_AdaptiveThresh);
+		//
+		MatOfByte matOfByte = new MatOfByte();
+		Imgcodecs.imencode(".jpg", dst_AdaptiveThresh, matOfByte);
+		// Storing the encoded Mat in a byte array
+		byte[] byteArray = matOfByte.toArray();
+		// Preparing the Buffered Image
+		InputStream in = new ByteArrayInputStream(byteArray);
+		BufferedImage img = ImageIO.read(in);
+		return img;
 	}
 
-	public File ImportFile(String path) throws IOException {
-		File file = new File(path);
-		if (file.exists())
-			return file;
-		else {
-			return null;
-		}
-	}
-
-	public static void AdaptiveThreshold(String path) {
-	}
 	public static void main(String[] args) throws IOException {
-		File file = new File("D:\\Kì 5\\AI\\AI\\Giuaki\\Image\sp02.jpg");
-		System.out.println(GreyImage(file));
+		File file = new File("D:\\ki5\\AI\\\\AI\\Giuaki\\Image\\1.jpg");
+		System.out.println(Pretreatment(file));
 	}
 }
