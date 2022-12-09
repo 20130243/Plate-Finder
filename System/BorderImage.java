@@ -77,6 +77,7 @@ public class BorderImage {
 			System.out.println(cnt.size());
 
 		}
+		getCharacter(drawing);
 
 		Imgcodecs.imwrite("C:\\Users\\USER\\Downloads\\drawing.jpg", drawing);
 	}
@@ -88,7 +89,7 @@ public class BorderImage {
 		Imgproc.morphologyEx(drawing, thre_mor, threshold, kernel);
 		List<MatOfPoint> contours = new ArrayList<>();
 		Mat hierarchy = new Mat();
-		Imgproc.findContours(drawing, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(drawing, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE); 
 	}
 
 	public static void main(String[] args) {
