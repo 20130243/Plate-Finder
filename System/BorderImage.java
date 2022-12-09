@@ -1,5 +1,7 @@
 package System;
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,7 +33,7 @@ public class BorderImage {
 		Mat srcGray = new Mat();
 		Imgproc.cvtColor(ThImage, srcGray, Imgproc.COLOR_BGR2GRAY); // Đổi sang không gian màu xám
 		Imgproc.blur(srcGray, srcGray, new Size(3, 3));
-		Imgcodecs.imwrite("C:\\Users\\USER\\Downloads\\dgrat.jpg", srcGray); // làm mờ
+		Imgcodecs.imwrite("D:\\ki5\\AI\\AI\\Giuaki\\Image\\test.jpg", srcGray); // làm mờ
 
 		Mat cannyOutput = new Mat();
 		Imgproc.Canny(srcGray, cannyOutput, threshold, threshold * 2); // tìm các cạnh
@@ -76,8 +78,8 @@ public class BorderImage {
 			}
 		}
 		System.out.println(screenCnt.size());
+		// Lấy ra 4 cái đỉnh 
 		for (MatOfPoint2f cnt : screenCnt) {
-			System.out.println(2);
 			System.out.println(cnt.height());
 				Point[] p = cnt.toArray();
 				for (Point a : p) {
@@ -85,13 +87,33 @@ public class BorderImage {
 				}
 				System.out.println(p);
 				Point p1 = p[0];
-				double x1= p1.x;
-				double y1= p1.y;
+				Point p2 = p[1];
+				Point p3 = p[2];
+				Point p4 = p[3];
 				
+				double x1= p1.x;
+				double y1=  p1.y;
+				
+				double x2=  p2.x;
+				double y2=  p2.y;
+				
+				double x3= p3.x;
+				double y3= p3.y;
+				
+				double x4= p4.x;
+				double y4= p4.y;
+				
+				ArrayList<Point> points = new ArrayList<Point>();
+				
+				
+				System.out.println(x1 + " " + y1 + " " + x2 + " " + y2 + x3 + " " + y3 + " " + x4 + " " + y4);
 		}
+	
+		
+		
 //		getCharacter(drawing);
 
-		Imgcodecs.imwrite("C:\\Users\\USER\\Downloads\\drawing.jpg", drawing);
+		Imgcodecs.imwrite("D:\\ki5\\AI\\AI\\Giuaki\\Image\\test123.jpg", drawing);
 	}
 
 	public void getCharacter(Mat drawing) {
@@ -166,7 +188,7 @@ public class BorderImage {
 	public static void main(String[] args) {
 
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		Mat mat = Imgcodecs.imread("C:\\Users\\USER\\Downloads\\imgThreshplate.jpg");
+		Mat mat = Imgcodecs.imread("D:\\ki5\\AI\\AI\\Giuaki\\Image\\test4.jpg");
 		new BorderImage().Border(mat);
 
 //		Imgproc.rectangle(mat, new Point(10, 10), new Point(100, 100), new Scalar(0, 255, 0));

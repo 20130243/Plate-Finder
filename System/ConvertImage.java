@@ -32,9 +32,9 @@ public class ConvertImage {
 		Imgproc.GaussianBlur(source, dst_smoothing, ksize, 0);
 		// nhi phan hoa hinh anh
 		Mat dst_AdaptiveThresh = new Mat();
-		Imgproc.adaptiveThreshold(dst_Contrast, dst_AdaptiveThresh, 150, Imgproc.ADAPTIVE_THRESH_MEAN_C,
-				Imgproc.THRESH_BINARY_INV, 19, 9);
-		Imgcodecs.imwrite("D:\\ki5\\AI\\AI\\Giuaki\\Image\\test.jpg", dst_AdaptiveThresh);
+		Imgproc.adaptiveThreshold(dst_Contrast, dst_AdaptiveThresh, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C,
+		Imgproc.THRESH_BINARY_INV, 11, 2);
+		Imgcodecs.imwrite("D:\\ki5\\AI\\AI\\Giuaki\\Image\\test4.jpg", dst_AdaptiveThresh);
 		//
 		MatOfByte matOfByte = new MatOfByte();
 		Imgcodecs.imencode(".jpg", dst_AdaptiveThresh, matOfByte);
