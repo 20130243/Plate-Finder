@@ -1,7 +1,5 @@
 package System;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,6 +19,8 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.ml.KNearest;
+import org.opencv.ml.Ml;
 
 public class BorderImage {
 	private int threshold = 100;
@@ -36,7 +36,7 @@ public class BorderImage {
 		Mat srcGray = new Mat();
 		Imgproc.cvtColor(ThImage, srcGray, Imgproc.COLOR_BGR2GRAY); // Đổi sang không gian màu xám
 		Imgproc.blur(srcGray, srcGray, new Size(3, 3));
-		Imgcodecs.imwrite("D:\\ki5\\AI\\AI\\Giuaki\\Image\\test.jpg", srcGray); // làm mờ
+		Imgcodecs.imwrite("C:\\Users\\USER\\Downloads\\1.jpg", srcGray); // làm mờ
 
 		Mat cannyOutput = new Mat();
 		Imgproc.Canny(srcGray, cannyOutput, threshold, threshold * 2); // tìm các cạnh
@@ -45,7 +45,7 @@ public class BorderImage {
 		List<MatOfPoint> contours = new ArrayList<>();
 		Mat hierarchy = new Mat();
 		Imgproc.findContours(cannyOutput, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-
+		Imgcodecs.imwrite("C:\\Users\\USER\\Downloads\\2.jpg", hierarchy);
 		// Sắp xếp contour giảm dần
 		Collections.sort(contours, new Comparator<MatOfPoint>() {
 			@Override
@@ -78,53 +78,27 @@ public class BorderImage {
 				screenCnt.add(approx);
 				Scalar color = new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256));
 				Imgproc.drawContours(drawing, contours, i, color, 2, Imgproc.LINE_8, hierarchy, 0, new Point());
+
 			}
 		}
 		System.out.println(screenCnt.size());
-		// Lấy ra 4 cái đỉnh
-		for (MatOfPoint2f cnt : screenCnt) {
-			System.out.println(cnt.height());
+for (MatOfPoint2f matOfPoint2f : screenCnt) {
+	
+	getCharacter(matOfPoint2f);
+}
 
-			Point[] p = cnt.toArray();
-			for (Point a : p) {
-				System.out.println(a.x + " " + a.y);
-			}
-			System.out.println(p);
-			Point p1 = p[0];
-			Point p2 = p[1];
-			Point p3 = p[2];
-			Point p4 = p[3];
-
-			double x1 = p1.x;
-			double y1 = p1.y;
-
-			double x2 = p2.x;
-			double y2 = p2.y;
-
-			double x3 = p3.x;
-			double y3 = p3.y;
-
-			double x4 = p4.x;
-			double y4 = p4.y;
-
-			ArrayList<Point> points = new ArrayList<Point>();
-
-			System.out.println(x1 + " " + y1 + " " + x2 + " " + y2 + x3 + " " + y3 + " " + x4 + " " + y4);
-
-		}
-
-//		getCharacter(drawing);
 
 		Imgcodecs.imwrite("D:\\ki5\\AI\\AI\\Giuaki\\Image\\test123.jpg", drawing);
 	}
 
 	public void getCharacter(Mat drawing) {
+		System.out.println("lan 1 ");
 		Mat srcGray = new Mat();
 		Imgproc.cvtColor(drawing, srcGray, Imgproc.COLOR_BGR2GRAY); // Đổi sang không gian màu xám
 		Imgproc.blur(srcGray, srcGray, new Size(3, 3));
 		Mat cannyOutput = new Mat();
 		Imgproc.Canny(srcGray, cannyOutput, threshold, threshold * 2); // tìm các cạnh
-
+		Imgcodecs.imwrite("C:\\Users\\USER\\Downloads\\4.jpg", cannyOutput);
 		Mat roi = drawing;
 		int roiarea = roi.width() * roi.height();
 		Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
@@ -137,6 +111,7 @@ public class BorderImage {
 		Mat hierarchy = new Mat();
 		Imgproc.findContours(cannyOutput, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
 
+		System.out.println("lan 2 ");
 		List<Integer> char_x = new ArrayList<Integer>();
 		Map<Integer, Integer> char_x_ind = new HashMap<Integer, Integer>();
 		for (int i = 0; i < contours.size(); i++) {
@@ -154,6 +129,7 @@ public class BorderImage {
 
 			double ratiochar = w / h;
 			double char_area = w * h;
+			System.out.println("lan 3 ");
 
 			if (Min_char * roiarea < char_area && char_area < Max_char * roiarea && 0.25 < ratiochar
 					&& ratiochar < 0.7) {
@@ -191,14 +167,35 @@ public class BorderImage {
 				w = rectangle.width;
 				h = rectangle.height;
 
+				System.out.println("lan 4 ");
+				// cắt chữ
 				Imgproc.rectangle(roi, new Point(x, y), new Point(x + w, y + h), color, j);
 				Mat imgROI = thre_mor.submat(y, y + w, x, x + h);
-
+				// resize anh
 				Mat imgROIResize = new Mat();
 				Imgproc.resize(imgROI, imgROIResize, new Size(RESIZED_IMAGE_WIDTH, RESIZED_IMAGE_HEIGHT));
 				imgROIResize.reshape(1, RESIZED_IMAGE_WIDTH * RESIZED_IMAGE_HEIGHT);
 
+				imgROIResize.convertTo(imgROIResize, CvType.CV_32F);
+
+				KNearest knn = KNearest.create();
+				Mat flatten = Imgcodecs
+						.imread("C:\\Users\\USER\\eclipse-workspace\\FindPlate\\src\\System\\flattened_images.txt");
+				Mat classification = Imgcodecs
+						.imread("C:\\Users\\USER\\eclipse-workspace\\FindPlate\\src\\System\\classifications.txt");
+				knn.train(flatten, Ml.ROW_SAMPLE, classification);
+
+				Float charset = knn.findNearest(classification, 3, imgROIResize);
+//				char vOut = Character.valueOf(charset);
+				if (y < h / 3) {
+					first_line = first_line + charset;
+
+				} else {
+					second_line = second_line + charset;
+				}
 			}
+			System.out.println(first_line);
+			System.out.println(second_line);
 
 		}
 
@@ -207,7 +204,7 @@ public class BorderImage {
 	public static void main(String[] args) {
 
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		Mat mat = Imgcodecs.imread("D:\\ki5\\AI\\AI\\Giuaki\\Image\\test4.jpg");
+		Mat mat = Imgcodecs.imread("C:\\Users\\USER\\Downloads\\imgThreshplate.jpg");
 		new BorderImage().Border(mat);
 
 //		Imgproc.rectangle(mat, new Point(10, 10), new Point(100, 100), new Scalar(0, 255, 0));
