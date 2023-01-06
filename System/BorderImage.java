@@ -82,11 +82,10 @@ public class BorderImage {
 			}
 		}
 		System.out.println(screenCnt.size());
-for (MatOfPoint2f matOfPoint2f : screenCnt) {
-	
-	getCharacter(matOfPoint2f);
-}
+		for (MatOfPoint2f matOfPoint2f : screenCnt) {
 
+			getCharacter(matOfPoint2f);
+		}
 
 		Imgcodecs.imwrite("D:\\ki5\\AI\\AI\\Giuaki\\Image\\test123.jpg", drawing);
 	}
@@ -109,7 +108,7 @@ for (MatOfPoint2f matOfPoint2f : screenCnt) {
 		Imgproc.morphologyEx(drawing, thre_mor, Imgproc.MORPH_DILATE, kernel);
 		List<MatOfPoint> contours = new ArrayList<>();
 		Mat hierarchy = new Mat();
-		Imgproc.findContours(cannyOutput, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(drawing, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		System.out.println("lan 2 ");
 		List<Integer> char_x = new ArrayList<Integer>();
